@@ -11,16 +11,16 @@ import { useTranslation } from "@/context/LangContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const CONTACT_ICONS = {
-  email:    { icon: FaEnvelope,     href: "mailto:info@valley-seeds.com" },
-  phone:    { icon: FaPhone,        href: "tel:+201287636986" },
+  email: { icon: FaEnvelope, href: "mailto:info@valley-seeds.com" },
+  phone: { icon: FaPhone, href: "tel:+201287636986" },
   location: { icon: FaMapMarkerAlt, href: null },
 };
 
 const socialLinks = [
-  { icon: FaFacebookF,  href: "#",                          label: "Facebook" },
-  { icon: FaLinkedinIn, href: "#",                          label: "LinkedIn" },
-  { icon: FaInstagram,  href: "#",                          label: "Instagram" },
-  { icon: FaWhatsapp,   href: "https://wa.me/201287636986", label: "WhatsApp" },
+  { icon: FaFacebookF, href: "#", label: "Facebook" },
+  { icon: FaLinkedinIn, href: "#", label: "LinkedIn" },
+  { icon: FaInstagram, href: "#", label: "Instagram" },
+  { icon: FaWhatsapp, href: "https://wa.me/201287636986", label: "WhatsApp" },
 ];
 
 export default function Footer() {
@@ -185,23 +185,25 @@ export default function Footer() {
           transition={{ duration: 0.5 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 flex-wrap"
         >
-          <p className="text-xs text-white/40 text-center">
-            © {currentYear} {fo.copyright}
-          </p>
-
-          {hasCopyrightLink && (
-            <>
-              <span className="hidden sm:block text-white/20 text-xs">·</span>
-              <a
-                href={fo.copyright_link_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-white/40 hover:text-[var(--brand-accent)] underline underline-offset-2 decoration-white/20 hover:decoration-[var(--brand-accent)] transition-colors duration-200"
-              >
-                {fo.copyright_link_text}
-              </a>
-            </>
-          )}
+          {hasCopyrightLink ?
+            (
+              <>
+                <span className="hidden sm:block text-white/20 text-xs">·</span>
+                <a
+                  href={fo.copyright_link_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-white/40 hover:text-[var(--brand-accent)] underline underline-offset-2 decoration-white/20 hover:decoration-[var(--brand-accent)] transition-colors duration-200"
+                >
+                  {fo.copyright_link_text}
+                </a>
+              </>
+            )
+            :
+            <p className="text-xs text-white/40 text-center">
+              © {currentYear} {fo.copyright}
+            </p>
+            }
         </motion.div>
       </div>
     </footer>
