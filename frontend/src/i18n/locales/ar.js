@@ -235,6 +235,8 @@ const ar = {
     tagline: "المنصة المصرية الأولى المستقلة لإدارة التجارب الحقلية لشركات بذور الخضروات — نحوّل التجارب إلى قرارات إطلاق واثقة ومبنية على البيانات.",
     quick_links_title: "روابط سريعة", services_title: "خدماتنا", contact_title: "تواصل معنا",
     copyright: "وان تو وان أجري بلاتفورم. جميع الحقوق محفوظة.",
+    copyright_link_text: "",
+    copyright_link_url: "",
     links: [
       { label: "الرئيسية",    href: "/" },
       { label: "من نحن",      href: "#about" },

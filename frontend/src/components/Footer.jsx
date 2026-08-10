@@ -17,10 +17,10 @@ const CONTACT_ICONS = {
 };
 
 const socialLinks = [
-  { icon: FaFacebookF, href: "#",                             label: "Facebook" },
-  { icon: FaLinkedinIn, href: "#",                            label: "LinkedIn" },
-  { icon: FaInstagram, href: "#",                             label: "Instagram" },
-  { icon: FaWhatsapp,  href: "https://wa.me/201287636986",    label: "WhatsApp" },
+  { icon: FaFacebookF,  href: "#",                          label: "Facebook" },
+  { icon: FaLinkedinIn, href: "#",                          label: "LinkedIn" },
+  { icon: FaInstagram,  href: "#",                          label: "Instagram" },
+  { icon: FaWhatsapp,   href: "https://wa.me/201287636986", label: "WhatsApp" },
 ];
 
 export default function Footer() {
@@ -31,6 +31,8 @@ export default function Footer() {
   const logoSrc = settings.logoWhiteUrl || "/images/logo-white.png";
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const hasCopyrightLink = fo.copyright_link_url && fo.copyright_link_text;
 
   return (
     <footer className="relative bg-gradient-to-b from-[#012a14] to-[#011a0c] text-white z-50">
@@ -175,16 +177,31 @@ export default function Footer() {
 
         <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-8" />
 
+        {/* Copyright bar */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 flex-wrap"
         >
-          <p className="text-xs text-white/40 text-center sm:text-left">
+          <p className="text-xs text-white/40 text-center">
             © {currentYear} {fo.copyright}
           </p>
+
+          {hasCopyrightLink && (
+            <>
+              <span className="hidden sm:block text-white/20 text-xs">·</span>
+              <a
+                href={fo.copyright_link_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-white/40 hover:text-[var(--brand-accent)] underline underline-offset-2 decoration-white/20 hover:decoration-[var(--brand-accent)] transition-colors duration-200"
+              >
+                {fo.copyright_link_text}
+              </a>
+            </>
+          )}
         </motion.div>
       </div>
     </footer>

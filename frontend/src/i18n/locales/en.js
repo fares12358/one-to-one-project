@@ -235,6 +235,8 @@ const en = {
     tagline: "Egypt's first independent field-trial management platform for vegetable seed companies — turning trials into confident, data-driven launch decisions.",
     quick_links_title: "Quick Links", services_title: "Our Services", contact_title: "Contact Us",
     copyright: "One to One Agri Platform. All rights reserved.",
+    copyright_link_text: "",
+    copyright_link_url: "",
     links: [
       { label: "Home",       href: "/" },
       { label: "About",      href: "#about" },
