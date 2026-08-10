@@ -204,8 +204,8 @@ const en = {
     subheading: "Whether you're a seed company, distributor, or R&D center — let's turn your next launch into a data-driven decision.",
     form: {
       title: "Send a Message", subtitle: "We typically respond within 24 hours",
-      name_label: "Full Name", name_placeholder: "John Doe",
-      email_label: "Email Address", email_placeholder: "john@example.com",
+      name_label: "Full Name", name_placeholder: "your name",
+      email_label: "Email Address", email_placeholder: "email@example.com",
       phone_label: "Phone Number", phone_placeholder: "+20 1XX XXX XXXX",
       subject_label: "Subject", subject_placeholder: "Select a topic",
       subject_options: [

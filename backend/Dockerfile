@@ -5,28 +5,32 @@
 # across recreates, and uploaded images live on disk (see CLAUDE.md's
 # "Image storage" section).
 
-FROM node:20-alpine
+FROM node:22-alpine AS deps
 
 WORKDIR /app
 
 # Install prod-only deps first so this layer is cached across source edits
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm ci --omit=dev
+FROM node:22-alpine AS runner
+WORKDIR /app
 
+# Non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Non-root user for the process; uploads dir must be writable by it
-RUN addgroup -g 1001 -S nodejs \
-  && adduser -S expressjs -u 1001 \
-  && mkdir -p src/uploads \
-  && chown -R expressjs:nodejs /app
+# Create uploads directory with correct permissions
+RUN mkdir -p src/uploads/expenses && chown -R appuser:appgroup src/uploads
 
-USER expressjs
+USER appuser
 
-ENV NODE_ENV=production
 EXPOSE 5000
 
-# MONGO_URI / JWT_SECRET / ADMIN_EMAIL / ADMIN_PASSWORD are required at
-# startup (server.js exits immediately if missing) — pass them via
-# docker-compose's env_file/environment, never bake them into the image.
+ENV NODE_ENV=production
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://localhost:5000/api/v1/health || exit 1
+
 CMD ["node", "src/server.js"]

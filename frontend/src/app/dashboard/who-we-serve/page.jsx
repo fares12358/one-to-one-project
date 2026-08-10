@@ -57,6 +57,7 @@ export default function WhoWeServeEditorPage() {
               <div className="max-w-lg">
                 <ImageManager
                   label="Background image"
+                  hint="1920 × 1080 px — JPG/WebP, landscape (16:9) — image is darkened by an overlay on the site"
                   value={formData.images?.[0] || null}
                   folder="serve"
                   onChange={(img) => setImages(img ? [img] : [])}

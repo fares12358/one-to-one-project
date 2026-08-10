@@ -73,6 +73,7 @@ export default function TeamEditorPage() {
               <div className="max-w-lg">
                 <ImageManager
                   label="Team image"
+                  hint="800 × 600 px — JPG/WebP, landscape (4:3)"
                   value={formData.images?.[0] || null}
                   folder="team"
                   onChange={(img) => setImages(img ? [img] : [])}

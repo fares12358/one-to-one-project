@@ -159,6 +159,7 @@ export default function MarketEditorPage() {
 
                     <ImageManager
                       label={"Item " + (i + 1) + " image"}
+                      hint="800 × 500 px — JPG/WebP, landscape (16:10)"
                       value={formData.images?.[i] || null}
                       folder="market"
                       onChange={(img) => {

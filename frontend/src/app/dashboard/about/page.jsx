@@ -74,6 +74,7 @@ export default function AboutEditorPage() {
             <div className="max-w-lg">
               <ImageManager
                 label="About image"
+                hint="800 × 600 px — JPG/WebP, portrait or landscape (4:3)"
                 value={formData.images?.[0] || null}
                 folder="about"
                 onChange={(img) => setImages(img ? [img] : [])}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, Trash2, RefreshCw, AlertCircle } from "lucide-react";
+import { Upload, Trash2, RefreshCw, AlertCircle, Ruler } from "lucide-react";
 import { useImageUpload } from "@/hooks/useImageUpload";
 import { deleteImage } from "@/services/upload.service";
 import ConfirmModal from "./ConfirmModal";
@@ -9,6 +9,7 @@ import ConfirmModal from "./ConfirmModal";
 export default function ImageManager({
   value,        // { url, publicId } | null
   label = "Image",
+  hint,         // e.g. "1920 × 1080 px — JPG/WebP, landscape"
   folder = "general",
   onChange,     // (newValue: { url, publicId } | null) => void
 }) {
@@ -50,7 +51,16 @@ export default function ImageManager({
   return (
     <>
       <div className="space-y-2">
+        {/* Label row */}
         {label && <p className="text-sm font-medium text-gray-700">{label}</p>}
+
+        {/* Size hint — shown above the drop zone */}
+        {hint && (
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#037338]/6 border border-[#037338]/15 text-xs text-[#037338] font-medium">
+            <Ruler size={12} className="shrink-0 opacity-70" />
+            {hint}
+          </div>
+        )}
 
         <div
           className={`relative rounded-xl border-2 overflow-hidden transition-colors ${

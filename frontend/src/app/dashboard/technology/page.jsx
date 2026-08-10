@@ -90,6 +90,7 @@ export default function TechnologyEditorPage() {
               <div className="max-w-lg">
                 <ImageManager
                   label="Technology image"
+                  hint="800 × 600 px — JPG/WebP, landscape (4:3)"
                   value={formData.images?.[0] || null}
                   folder="technology"
                   onChange={(img) => setImages(img ? [img] : [])}

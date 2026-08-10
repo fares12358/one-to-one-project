@@ -72,6 +72,7 @@ export default function HeroEditorPage() {
             <div className="max-w-lg">
               <ImageManager
                 label="Background image"
+                hint="1920 × 1080 px — JPG/WebP, landscape (16:9)"
                 value={formData.images?.[0] || null}
                 folder="hero"
                 onChange={(img) => setImages(img ? [img] : [])}

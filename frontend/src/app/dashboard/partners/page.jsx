@@ -126,6 +126,7 @@ export default function PartnersEditorPage() {
 
                   <ImageManager
                     label={"Partner " + (i + 1) + " logo"}
+                    hint="400 × 200 px — PNG with transparent background preferred"
                     value={formData.images?.[i] || null}
                     folder="partners"
                     onChange={(img) => {

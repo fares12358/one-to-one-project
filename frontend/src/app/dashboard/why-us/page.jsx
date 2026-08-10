@@ -82,6 +82,7 @@ export default function WhyUsEditorPage() {
               <div className="max-w-lg">
                 <ImageManager
                   label="Why Us image"
+                  hint="800 × 600 px — JPG/WebP, landscape (4:3)"
                   value={formData.images?.[0] || null}
                   folder="why-us"
                   onChange={(img) => setImages(img ? [img] : [])}

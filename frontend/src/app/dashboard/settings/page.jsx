@@ -141,12 +141,13 @@ export default function SettingsPage() {
           </div>
         </section>
 
-        {/* Logos — publicId saved alongside URL so the old file can be deleted on replace */}
+        {/* Logos */}
         <section className="bg-white rounded-2xl border border-gray-100 p-6 space-y-4">
           <h2 className="text-base font-semibold text-gray-800">Logo Images</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ImageManager
               label="Logo — light background"
+              hint="400 × 120 px — PNG with transparent background"
               value={settings.logoUrl ? { url: settings.logoUrl, publicId: settings.logoPublicId || "" } : null}
               folder="brand"
               onChange={(img) => {
@@ -156,6 +157,7 @@ export default function SettingsPage() {
             />
             <ImageManager
               label="Logo — dark background (white version)"
+              hint="400 × 120 px — PNG with transparent background"
               value={settings.logoWhiteUrl ? { url: settings.logoWhiteUrl, publicId: settings.logoWhitePublicId || "" } : null}
               folder="brand"
               onChange={(img) => {
