@@ -71,6 +71,9 @@ html {
   font-family: 'Alexandria';
   scroll-behavior: smooth;
   min-height: 100%;
+  /* Prevent any child overflow from creating a horizontal scrollbar
+     at the document level — catches dashboard field bleed on mobile */
+  overflow-x: hidden;
 }
 
 *{
@@ -79,6 +82,7 @@ html {
 
 body {
   min-height: 100%;
+  overflow-x: hidden;
   background: var(--background);
   color: var(--foreground);
   font-family: "Alexandria", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -170,10 +174,14 @@ body {
 
 /* Scroll indicator centering stays correct — left/transform is direction-agnostic here */
 
-/* Form inputs in RTL */
-[dir="rtl"] input,
-[dir="rtl"] textarea,
-[dir="rtl"] select {
+/* Form inputs in RTL — scoped to the public site only, never the dashboard.
+   The dashboard FieldEditor sets dir="ltr" / dir="rtl" explicitly per field.
+   This global rule must NOT reach dashboard inputs or it overrides the EN
+   field's dir="ltr", causing layout bleed on mobile. We scope it by excluding
+   any ancestor with the .dashboard-shell marker class added in layout.jsx. */
+[dir="rtl"] body:not(:has(.dashboard-shell)) input,
+[dir="rtl"] body:not(:has(.dashboard-shell)) textarea,
+[dir="rtl"] body:not(:has(.dashboard-shell)) select {
   text-align: right;
   direction: rtl;
 }

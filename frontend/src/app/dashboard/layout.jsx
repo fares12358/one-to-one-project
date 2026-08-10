@@ -36,7 +36,6 @@ const PUBLIC_PATHS = [
   "/dashboard/reset-password",
 ];
 
-// ── Inner shell — can safely call useAuth() because AuthProvider is above it ──
 function DashboardShell({ children }) {
   const { user, isLoading } = useAuth();
   const pathname = usePathname();
@@ -48,7 +47,6 @@ function DashboardShell({ children }) {
     setMobileOpen(false);
   }, [pathname]);
 
-  // Auth pages (login, forgot, reset) — render directly, no shell, no MessagesProvider
   if (isPublicPath) {
     return (
       <>
@@ -77,8 +75,11 @@ function DashboardShell({ children }) {
   const pageTitle = PAGE_TITLES[pathname] || "Dashboard";
 
   return (
+    // dashboard-shell — marker class scopes the globals.css RTL input rule
+    // away from this subtree so the per-field dir="ltr/rtl" on FieldEditor
+    // is never overridden by the [dir="rtl"] body input global selector.
     <MessagesProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="dashboard-shell min-h-screen bg-gray-50 overflow-x-hidden">
         <Toaster
           position="top-right"
           toastOptions={{
@@ -88,7 +89,7 @@ function DashboardShell({ children }) {
           }}
         />
         <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
-        <div className="lg:pl-64 flex flex-col min-h-screen">
+        <div className="lg:pl-64 flex flex-col min-h-screen overflow-x-hidden">
           <TopBar title={pageTitle} onMenuClick={() => setMobileOpen(true)} />
           <main className="flex-1 flex flex-col">
             <div className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-8">
@@ -101,7 +102,6 @@ function DashboardShell({ children }) {
   );
 }
 
-// ── Outer layout — provides AuthProvider, renders shell inside ──
 export default function DashboardLayout({ children }) {
   return (
     <AuthProvider>
