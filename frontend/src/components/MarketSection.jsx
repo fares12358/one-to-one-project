@@ -15,8 +15,9 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-// Memoised — reused on the homepage strip and the full /market page
-export const MarketCard = memo(function MarketCard({ item, index, images }) {
+// Memoised — reused on the homepage strip and the full /market page.
+// `isRTL` is passed down from the parent so the card can pick the right value key.
+export const MarketCard = memo(function MarketCard({ item, index, images, isRTL }) {
   const imgSrc = images?.[index]?.url || images?.[index];
   const rows = item.rows || [];
 
@@ -43,15 +44,27 @@ export const MarketCard = memo(function MarketCard({ item, index, images }) {
       <div className="p-6">
         <h4 className="text-[15px] font-semibold text-[#1a2e0e] mb-3.5">{item.title}</h4>
         <div className="flex flex-col">
-          {rows.map((row, i) => (
-            <div
-              key={i}
-              className={`flex items-center justify-between py-2.5 ${i < rows.length - 1 ? "border-b border-[rgba(var(--brand-accent-rgb),0.15)]" : ""}`}
-            >
-              <span className="text-xs text-[#6a8050]">{row.label}</span>
-              <span className="text-sm font-semibold text-[var(--brand-primary)] font-serif">{row.value}</span>
-            </div>
-          ))}
+          {rows.map((row, i) => {
+            // Pick the localised label/value. Falls back gracefully for legacy shared `label`/`value` fields.
+            const displayLabel = isRTL
+              ? (row.label_ar || row.label_en || row.label || "")
+              : (row.label_en || row.label_ar || row.label || "");
+            const displayValue = isRTL
+              ? (row.value_ar || row.value_en || row.value || "")
+              : (row.value_en || row.value_ar || row.value || "");
+
+            return (
+              <div
+                key={i}
+                className={`flex items-center justify-between py-2.5 ${i < rows.length - 1 ? "border-b border-[rgba(var(--brand-accent-rgb),0.15)]" : ""}`}
+              >
+                <span className="text-xs text-[#6a8050]">{displayLabel}</span>
+                <span className="text-sm font-semibold text-[var(--brand-primary)] font-serif">
+                  {displayValue}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </motion.div>
@@ -59,7 +72,7 @@ export const MarketCard = memo(function MarketCard({ item, index, images }) {
 });
 
 const MarketSection = () => {
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const m = t.market;
   const items  = m?.items   || [];
   const images = m?._images || [];
@@ -98,7 +111,7 @@ const MarketSection = () => {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
         >
           {displayed.map((item, index) => (
-            <MarketCard key={index} item={item} index={index} images={images} />
+            <MarketCard key={index} item={item} index={index} images={images} isRTL={isRTL} />
           ))}
         </motion.div>
 
@@ -132,9 +145,7 @@ const MarketSection = () => {
         )}
 
         {m?.note && (
-          <p className="mt-10 text-xs text-[#96a882] max-w-2xl leading-relaxed">
-            {m.note}
-          </p>
+          <p className="mt-10 text-xs text-[#96a882] max-w-2xl leading-relaxed">{m.note}</p>
         )}
       </div>
     </section>

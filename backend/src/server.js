@@ -8,19 +8,20 @@ if (missing.length > 0) {
   process.exit(1);
 }
 
-import path          from "path";
+import path from "path";
 import { fileURLToPath } from "url";
-import express       from "express";
-import cors          from "cors";
-import cookieParser  from "cookie-parser";
-import helmet        from "helmet";
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import helmet from "helmet";
 
-import connectDB       from "./config/db.js";
-import authRoutes      from "./modules/auth/auth.routes.js";
-import contentRoutes   from "./modules/content/content.routes.js";
-import settingsRoutes  from "./modules/settings/settings.routes.js";
-import uploadRoutes    from "./modules/upload/upload.routes.js";
-import contactRoutes   from "./modules/contact/contact.routes.js";
+import connectDB from "./config/db.js";
+import authRoutes from "./modules/auth/auth.routes.js";
+import contentRoutes from "./modules/content/content.routes.js";
+import settingsRoutes from "./modules/settings/settings.routes.js";
+import uploadRoutes from "./modules/upload/upload.routes.js";
+import contactRoutes from "./modules/contact/contact.routes.js";
+import telegramRoutes from "./modules/telegram/telegram.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import { authLimiter } from "./middlewares/rateLimiter.js";
 
@@ -37,7 +38,7 @@ app.use(helmet());
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 const allowedOrigins = [
-  process.env.CLIENT_URL    || "http://localhost:3000",
+  process.env.CLIENT_URL || "http://localhost:3000",
   process.env.DASHBOARD_URL || "http://localhost:3000",
 ].filter(Boolean);
 
@@ -47,8 +48,8 @@ app.use(cors({
     callback(new Error(`CORS: origin ${origin} not allowed`));
   },
   credentials: true,
-  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
 // ─── Body parsers ─────────────────────────────────────────────────────────────
@@ -83,7 +84,7 @@ app.use((req, res, next) => {
   const origin = req.headers.origin || req.headers.referer;
   if (origin) {
     try {
-      const originHost  = new URL(origin).hostname;
+      const originHost = new URL(origin).hostname;
       const allowedHosts = allowedOrigins.map((o) => new URL(o).hostname);
       if (!allowedHosts.includes(originHost)) {
         return res.status(403).json({ success: false, message: "Forbidden — invalid origin" });
@@ -98,7 +99,7 @@ app.use((req, res, next) => {
 });
 
 // ─── Auth rate limiting — applied to sensitive auth endpoints only ─────────────
-app.use("/api/auth/login",           authLimiter);
+app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/forgot-password", authLimiter);
 
 // ─── Health check ─────────────────────────────────────────────────────────────
@@ -107,12 +108,12 @@ app.get("/api/health", (req, res) => {
 });
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
-app.use("/api/auth",     authRoutes);
-app.use("/api/content",  contentRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/content", contentRoutes);
 app.use("/api/settings", settingsRoutes);
-app.use("/api/upload",   uploadRoutes);
-app.use("/api/contact",  contactRoutes);
-
+app.use("/api/upload", uploadRoutes);
+app.use("/api/contact", contactRoutes);
+app.use("/api/telegram", telegramRoutes);
 // ─── 404 handler ──────────────────────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.method} ${req.originalUrl} not found` });

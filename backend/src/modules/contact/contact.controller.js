@@ -1,6 +1,8 @@
 import Contact from "./contact.model.js";
 import { sendContactEmail } from "../../config/email.js";
-
+import {
+  notifyContactSubmission,
+} from "../telegram/notification.service.js";
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ""));
 
 // ─── POST /api/contact  (public) ─────────────────────────────────────────────
@@ -22,9 +24,9 @@ export const submit = async (req, res, next) => {
     }
 
     const contact = await Contact.create({
-      name:    name.trim(),
-      email:   email.trim().toLowerCase(),
-      phone:   phone?.trim()   || undefined,
+      name: name.trim(),
+      email: email.trim().toLowerCase(),
+      phone: phone?.trim() || undefined,
       subject: subject?.trim() || undefined,
       message: message.trim(),
     });
@@ -36,6 +38,15 @@ export const submit = async (req, res, next) => {
     } catch (emailErr) {
       console.warn("[contact] Email init failed:", emailErr.message);
     }
+
+
+    await notifyContactSubmission({
+      name,
+      email,
+      phone,
+      subject,
+      message,
+    });
 
     res.status(201).json({ success: true, data: null });
   } catch (err) {
@@ -53,7 +64,7 @@ export const getAll = async (req, res, next) => {
 
     // Pagination support — default 50 per page, max 100
     const limit = Math.min(parseInt(req.query.limit) || 50, 100);
-    const skip  = parseInt(req.query.skip) || 0;
+    const skip = parseInt(req.query.skip) || 0;
 
     // Parallel queries — index-friendly + .lean() skips Mongoose hydration
     const [messages, [totals]] = await Promise.all([
@@ -64,16 +75,16 @@ export const getAll = async (req, res, next) => {
         .lean(),
       Contact.aggregate([{
         $group: {
-          _id:         null,
-          total:       { $sum: 1 },
+          _id: null,
+          total: { $sum: 1 },
           unreadCount: { $sum: { $cond: [{ $eq: ["$read", false] }, 1, 0] } },
         },
       }]),
     ]);
 
-    const total       = totals?.total       || 0;
+    const total = totals?.total || 0;
     const unreadCount = totals?.unreadCount || 0;
-    const hasMore     = skip + messages.length < total;
+    const hasMore = skip + messages.length < total;
 
     res.json({ success: true, data: { messages, total, unreadCount, hasMore } });
   } catch (err) {

@@ -21,10 +21,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
-    >
+    <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
         {heroImage && (
@@ -52,9 +49,7 @@ export default function HeroSection() {
             <span className="block w-8 h-px bg-[var(--brand-accent)]" />
           </div>
 
-          <h1 className="text-white max-w-4xl mx-auto">
-            {t.hero.heading}
-          </h1>
+          <h1 className="text-white max-w-4xl mx-auto">{t.hero.heading}</h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -76,9 +71,7 @@ export default function HeroSection() {
               className="group bg-white text-[var(--brand-primary)] px-8 py-4 rounded-lg hover:bg-[var(--brand-accent)] hover:text-white transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl"
             >
               {t.hero.cta_primary}
-              <FaArrowRight
-                className={`w-5 h-5 transition-transform ${isRTL ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"}`}
-              />
+              <FaArrowRight className={`w-5 h-5 transition-transform ${isRTL ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"}`} />
             </button>
 
             <button
@@ -101,30 +94,39 @@ export default function HeroSection() {
       >
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/20">
-            {t.hero.stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.2 + index * 0.15, duration: 0.6 }}
-                className="flex flex-col items-center justify-center py-8 sm:py-10 px-4"
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-2 h-2 bg-[var(--brand-accent)] rounded-full animate-pulse flex-shrink-0" />
-                  <motion.span
-                    initial={{ scale: 0.8 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 1.4 + index * 0.15, type: "spring", stiffness: 200 }}
-                    className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight"
-                  >
-                    {stat.number}
-                  </motion.span>
-                </div>
-                <span className="text-white/80 text-sm sm:text-base text-center font-medium">
-                  {stat.text}
-                </span>
-              </motion.div>
-            ))}
+            {t.hero.stats.map((stat, index) => {
+              // Pick the localised number: AR page shows number_ar, EN page shows number_en.
+              // Falls back to the other key and then to a legacy `number` field so old
+              // data saved before the split still renders correctly.
+              const displayNumber = isRTL
+                ? (stat.number_ar || stat.number_en || stat.number || "")
+                : (stat.number_en || stat.number_ar || stat.number || "");
+
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2 + index * 0.15, duration: 0.6 }}
+                  className="flex flex-col items-center justify-center py-8 sm:py-10 px-4"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-2 h-2 bg-[var(--brand-accent)] rounded-full animate-pulse flex-shrink-0" />
+                    <motion.span
+                      initial={{ scale: 0.8 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 1.4 + index * 0.15, type: "spring", stiffness: 200 }}
+                      className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight"
+                    >
+                      {displayNumber}
+                    </motion.span>
+                  </div>
+                  <span className="text-white/80 text-sm sm:text-base text-center font-medium">
+                    {stat.text}
+                  </span>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </motion.div>

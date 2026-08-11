@@ -6,6 +6,8 @@ import ImageManager from "@/components/dashboard/ImageManager";
 import SectionSkeleton from "@/components/dashboard/SectionSkeleton";
 import { useSection } from "@/hooks/useSection";
 
+const INPUT = "w-full px-4 py-2.5 bg-gray-50 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#037338] focus:bg-white transition-all";
+
 export default function HeroEditorPage() {
   const { data, loading, error, save } = useSection("hero");
 
@@ -17,6 +19,7 @@ export default function HeroEditorPage() {
       {({ formData, setField, setImages }) => (
         <div className="space-y-8">
 
+          {/* ── Heading & Copy ── */}
           <section className="bg-white rounded-2xl border border-gray-100 p-6 space-y-6">
             <h2 className="text-base font-semibold text-gray-800">Heading & Copy</h2>
             <FieldEditor label="Eyebrow (small label above heading)" fieldKey="eyebrow" enValue={formData.en?.eyebrow} arValue={formData.ar?.eyebrow} onChange={(lang, val) => setField(lang, "eyebrow", val)} />
@@ -28,30 +31,67 @@ export default function HeroEditorPage() {
             </div>
           </section>
 
+          {/* ── Stats Bar ── */}
           <section className="bg-white rounded-2xl border border-gray-100 p-6 space-y-5">
             <h2 className="text-base font-semibold text-gray-800">Stats Bar (3 fixed)</h2>
+
             {(formData.en?.stats || []).map((_, i) => (
-              <div key={i} className="border border-gray-100 rounded-xl p-4 space-y-4">
+              <div key={i} className="border border-gray-100 rounded-xl p-5 space-y-4">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Stat {i + 1}</span>
+
+                {/* Number — split EN / AR */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Number <span className="text-gray-400 font-normal">(shared)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.en?.stats?.[i]?.number || ""}
-                    onChange={(e) => {
-                      const enArr = [...(formData.en?.stats || [])];
-                      enArr[i] = { ...enArr[i], number: e.target.value };
-                      setField("en", "stats", enArr);
-                      const arArr = [...(formData.ar?.stats || [])];
-                      arArr[i] = { ...arArr[i], number: e.target.value };
-                      setField("ar", "stats", arArr);
-                    }}
-                    placeholder="e.g. 560+"
-                    className="w-full max-w-xs px-4 py-2.5 bg-gray-50 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#037338] focus:bg-white transition-all"
-                  />
+                  <p className="text-sm font-medium text-gray-700 mb-3">
+                    Number
+                    <span className="text-gray-400 font-normal ml-1">(separate value per language)</span>
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-1.5">
+                        🇬🇧 English
+                      </label>
+                      <input
+                        type="text"
+                        dir="ltr"
+                        value={formData.en?.stats?.[i]?.number_en || ""}
+                        onChange={(e) => {
+                          const arr = [...(formData.en?.stats || [])];
+                          arr[i] = { ...arr[i], number_en: e.target.value };
+                          setField("en", "stats", arr);
+                          // keep number_en in sync on AR side too (same key, same value)
+                          const arArr = [...(formData.ar?.stats || [])];
+                          arArr[i] = { ...arArr[i], number_en: e.target.value };
+                          setField("ar", "stats", arArr);
+                        }}
+                        placeholder="e.g. 50M+"
+                        className={INPUT}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-1.5">
+                        🇸🇦 Arabic
+                      </label>
+                      <input
+                        type="text"
+                        dir="rtl"
+                        value={formData.ar?.stats?.[i]?.number_ar || ""}
+                        onChange={(e) => {
+                          const arr = [...(formData.ar?.stats || [])];
+                          arr[i] = { ...arr[i], number_ar: e.target.value };
+                          setField("ar", "stats", arr);
+                          // keep number_ar in sync on EN side too
+                          const enArr = [...(formData.en?.stats || [])];
+                          enArr[i] = { ...enArr[i], number_ar: e.target.value };
+                          setField("en", "stats", enArr);
+                        }}
+                        placeholder="مثال: +50 مليون"
+                        className={INPUT}
+                      />
+                    </div>
+                  </div>
                 </div>
+
+                {/* Stat label — bilingual via FieldEditor */}
                 <FieldEditor
                   label="Stat Label"
                   fieldKey={"stat_" + i + "_text"}
@@ -67,6 +107,7 @@ export default function HeroEditorPage() {
             ))}
           </section>
 
+          {/* ── Background Image ── */}
           <section className="bg-white rounded-2xl border border-gray-100 p-6 space-y-6">
             <h2 className="text-base font-semibold text-gray-800">Hero Background Image</h2>
             <div className="max-w-lg">

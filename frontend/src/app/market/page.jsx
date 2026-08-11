@@ -13,7 +13,7 @@ const containerVariants = {
 };
 
 export default function MarketAllPage() {
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const m      = t.market;
   const items  = m?.items   || [];
   const images = m?._images || [];
@@ -72,7 +72,7 @@ export default function MarketAllPage() {
             className={`grid grid-cols-1 sm:grid-cols-2 gap-5 ${lgCols}`}
           >
             {items.map((item, index) => (
-              <MarketCard key={index} item={item} index={index} images={images} />
+              <MarketCard key={index} item={item} index={index} images={images} isRTL={isRTL} />
             ))}
           </motion.div>
 
