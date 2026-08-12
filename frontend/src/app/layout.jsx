@@ -1,6 +1,7 @@
 import "./globals.css";
 import { LangProvider } from "@/context/LangContext";
 import BrandTheme from "@/components/BrandTheme";
+import MetaPixel from "@/components/MetaPixel";
 
 export const metadata = {
   title: "One to One | Field-Trial Intelligence for Egypt's Seed Market",
@@ -12,10 +13,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" dir="ltr">
       <body>
-          <BrandTheme />
-          <LangProvider>
-            {children}
-          </LangProvider>
+        <BrandTheme />
+        <MetaPixel />
+        <LangProvider>
+          {children}
+        </LangProvider>
       </body>
     </html>
   );

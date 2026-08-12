@@ -1,5 +1,5 @@
 import Settings from "./settings.model.js";
-import { encrypt } from "../../utils/crypto.js";
+import { encrypt, decrypt } from "../../utils/crypto.js";
 
 const DEFAULTS = {
   brandName:         "One to One",
@@ -15,6 +15,7 @@ const DEFAULTS = {
   logoWhiteUrl:      "",
   logoPublicId:      "",
   logoWhitePublicId: "",
+  metaPixelId:       "",
 };
 
 const ALLOWED_FIELDS = [
@@ -23,15 +24,17 @@ const ALLOWED_FIELDS = [
   "socialLinks",
   "logoUrl", "logoWhiteUrl",
   "logoPublicId", "logoWhitePublicId",
+  "metaPixelId",
 ];
 
 // ─── GET /api/settings  (public) ───────────────────────────────────────────────
-// emailConfig is explicitly excluded — this route has no auth and is fetched
-// by the public website. Email credentials only ever leave the server via the
-// protected GET /api/settings/email pair below.
+// emailConfig and telegramConfig are explicitly excluded — not safe for public exposure.
+// metaPixelId IS included — the frontend needs it to initialise the pixel.
 export const get = async (req, res, next) => {
   try {
-    const settings = await Settings.findOne({}).select("-emailConfig").lean();
+    const settings = await Settings.findOne({})
+      .select("-emailConfig -telegramConfig")
+      .lean();
     res.json({ success: true, data: settings || DEFAULTS });
   } catch (err) {
     next(err);
@@ -62,40 +65,32 @@ export const update = async (req, res, next) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Email config
+// ─────────────────────────────────────────────────────────────────────────────
+
 const EMAIL_CONFIG_DEFAULTS = {
   provider: "app_password", host: "", port: 587, secure: false,
   user: "", from: "", to: "",
 };
-
 const GMAIL_DEFAULTS = { host: "smtp.gmail.com", port: 587, secure: false };
 
-// ─── GET /api/settings/email  (protected) ──────────────────────────────────────
-// Never returns the password itself — only whether one is set — so the
-// dashboard can render a "saved" state without the plaintext ever reaching
-// the client.
 export const getEmailConfig = async (req, res, next) => {
   try {
     const settings = await Settings.findOne({}).select("emailConfig").lean();
     const cfg = settings?.emailConfig || {};
     res.json({
       success: true,
-      data: {
-        ...EMAIL_CONFIG_DEFAULTS,
-        ...cfg,
-        passSet: Boolean(cfg.passEncrypted),
-        passEncrypted: undefined,
-      },
+      data: { ...EMAIL_CONFIG_DEFAULTS, ...cfg, passSet: Boolean(cfg.passEncrypted), passEncrypted: undefined },
     });
   } catch (err) {
     next(err);
   }
 };
 
-// ─── PUT /api/settings/email  (protected) ──────────────────────────────────────
 export const updateEmailConfig = async (req, res, next) => {
   try {
     const { provider, host, port, secure, user, pass, from, to } = req.body;
-
     const isAppPassword = provider === "app_password";
     const payload = {
       "emailConfig.provider": isAppPassword ? "app_password" : "smtp",
@@ -106,26 +101,65 @@ export const updateEmailConfig = async (req, res, next) => {
       "emailConfig.from":     from || "",
       "emailConfig.to":       to   || "",
     };
-
-    // Blank/omitted password — keep whatever is already stored.
     if (typeof pass === "string" && pass.trim() !== "") {
       payload["emailConfig.passEncrypted"] = encrypt(pass.trim());
+    }
+    const updated = await Settings.findOneAndUpdate(
+      {},
+      { $set: payload },
+      { new: true, upsert: true, runValidators: false }
+    ).select("emailConfig").lean();
+    res.json({
+      success: true,
+      data: { ...EMAIL_CONFIG_DEFAULTS, ...updated.emailConfig, passSet: Boolean(updated.emailConfig?.passEncrypted), passEncrypted: undefined },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Telegram config
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const getTelegramConfig = async (req, res, next) => {
+  try {
+    const settings = await Settings.findOne({}).select("telegramConfig").lean();
+    const cfg = settings?.telegramConfig || {};
+    res.json({
+      success: true,
+      data: { tokenSet: Boolean(cfg.botTokenEncrypted), chatId: cfg.chatId || "" },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateTelegramConfig = async (req, res, next) => {
+  try {
+    const { botToken, chatId } = req.body;
+    const payload = {};
+
+    if (typeof botToken === "string" && botToken.trim() !== "") {
+      payload["telegramConfig.botTokenEncrypted"] = encrypt(botToken.trim());
+    }
+    if (chatId !== undefined) {
+      payload["telegramConfig.chatId"] = String(chatId).trim();
+    }
+    if (Object.keys(payload).length === 0) {
+      return res.status(400).json({ success: false, message: "Nothing to update" });
     }
 
     const updated = await Settings.findOneAndUpdate(
       {},
       { $set: payload },
       { new: true, upsert: true, runValidators: false }
-    ).select("emailConfig").lean();
+    ).select("telegramConfig").lean();
 
+    const cfg = updated?.telegramConfig || {};
     res.json({
       success: true,
-      data: {
-        ...EMAIL_CONFIG_DEFAULTS,
-        ...updated.emailConfig,
-        passSet: Boolean(updated.emailConfig?.passEncrypted),
-        passEncrypted: undefined,
-      },
+      data: { tokenSet: Boolean(cfg.botTokenEncrypted), chatId: cfg.chatId || "" },
     });
   } catch (err) {
     next(err);

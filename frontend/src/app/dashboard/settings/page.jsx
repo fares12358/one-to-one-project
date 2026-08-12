@@ -7,6 +7,8 @@ import { FaFacebook, FaLinkedin, FaInstagram, FaWhatsapp } from "react-icons/fa"
 import ImageManager from "@/components/dashboard/ImageManager";
 import SaveBar from "@/components/dashboard/SaveBar";
 import EmailSettingsCard from "@/components/dashboard/EmailSettingsCard";
+import TelegramSettingsCard from "@/components/dashboard/TelegramSettingsCard";
+import MetaPixelSettingsCard from "@/components/dashboard/MetaPixelSettingsCard";
 import AdminAccountCard from "@/components/dashboard/AdminAccountCard";
 import api from "@/services/api";
 
@@ -169,6 +171,8 @@ export default function SettingsPage() {
         </section>
 
         <EmailSettingsCard />
+        <TelegramSettingsCard />
+        <MetaPixelSettingsCard />
         <AdminAccountCard />
 
       </div>

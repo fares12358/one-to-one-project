@@ -1,8 +1,7 @@
 import Contact from "./contact.model.js";
 import { sendContactEmail } from "../../config/email.js";
-import {
-  notifyContactSubmission,
-} from "../telegram/notification.service.js";
+import { notifyContactSubmission } from "../telegram/notification.service.js";
+
 const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ""));
 
 // ─── POST /api/contact  (public) ─────────────────────────────────────────────
@@ -11,10 +10,7 @@ export const submit = async (req, res, next) => {
     const { name, email, phone, subject, message } = req.body;
 
     if (!name?.trim() || !email?.trim() || !message?.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: "Name, email, and message are required",
-      });
+      return res.status(400).json({ success: false, message: "Name, email, and message are required" });
     }
     if (!isValidEmail(email)) {
       return res.status(400).json({ success: false, message: "Please enter a valid email address" });
@@ -23,30 +19,31 @@ export const submit = async (req, res, next) => {
       return res.status(400).json({ success: false, message: "Message is too short" });
     }
 
+    // Save to DB first — notification failures must never lose a submission.
     const contact = await Contact.create({
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      phone: phone?.trim() || undefined,
+      name:    name.trim(),
+      email:   email.trim().toLowerCase(),
+      phone:   phone?.trim()   || undefined,
       subject: subject?.trim() || undefined,
       message: message.trim(),
     });
 
-    try {
+    // Fire-and-forget — email and Telegram run in parallel, neither blocks the
+    // 201 response and neither can cause the endpoint to fail.
+    Promise.allSettled([
       sendContactEmail(contact).catch((err) =>
         console.warn("[contact] Email send failed:", err.message)
-      );
-    } catch (emailErr) {
-      console.warn("[contact] Email init failed:", emailErr.message);
-    }
-
-
-    await notifyContactSubmission({
-      name,
-      email,
-      phone,
-      subject,
-      message,
-    });
+      ),
+      notifyContactSubmission({
+        name:    contact.name,
+        email:   contact.email,
+        phone:   contact.phone    || "",
+        subject: contact.subject  || "",
+        message: contact.message,
+      }).catch((err) =>
+        console.warn("[contact] Telegram notify failed:", err.message)
+      ),
+    ]);
 
     res.status(201).json({ success: true, data: null });
   } catch (err) {
@@ -64,27 +61,23 @@ export const getAll = async (req, res, next) => {
 
     // Pagination support — default 50 per page, max 100
     const limit = Math.min(parseInt(req.query.limit) || 50, 100);
-    const skip = parseInt(req.query.skip) || 0;
+    const skip  = parseInt(req.query.skip) || 0;
 
     // Parallel queries — index-friendly + .lean() skips Mongoose hydration
     const [messages, [totals]] = await Promise.all([
-      Contact.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+      Contact.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       Contact.aggregate([{
         $group: {
-          _id: null,
-          total: { $sum: 1 },
+          _id:         null,
+          total:       { $sum: 1 },
           unreadCount: { $sum: { $cond: [{ $eq: ["$read", false] }, 1, 0] } },
         },
       }]),
     ]);
 
-    const total = totals?.total || 0;
+    const total      = totals?.total       || 0;
     const unreadCount = totals?.unreadCount || 0;
-    const hasMore = skip + messages.length < total;
+    const hasMore    = skip + messages.length < total;
 
     res.json({ success: true, data: { messages, total, unreadCount, hasMore } });
   } catch (err) {
@@ -96,7 +89,7 @@ export const getAll = async (req, res, next) => {
 export const markRead = async (req, res, next) => {
   try {
     const readValue = req.body.read ?? true;
-    const updated = await Contact.findByIdAndUpdate(
+    const updated   = await Contact.findByIdAndUpdate(
       req.params.id,
       { read: readValue },
       { new: true }

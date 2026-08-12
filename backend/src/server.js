@@ -30,7 +30,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 // ─── Trust proxy — required for correct req.ip behind Railway/Render/Nginx ────
-// Without this, rate limiter sees the proxy IP, not the real client IP
 app.set("trust proxy", 1);
 
 // ─── Security ─────────────────────────────────────────────────────────────────
@@ -57,17 +56,12 @@ app.use(express.json({ limit: "6mb" }));
 app.use(express.urlencoded({ extended: true, limit: "6mb" }));
 app.use(cookieParser());
 
-// ─── Uploaded images — served locally from disk (replaces Cloudinary) ─────────
-// helmet() defaults Cross-Origin-Resource-Policy to "same-origin", which would
-// block the frontend (a different origin) from loading these directly — relax
-// it for this route only, everything else keeps helmet's default protection.
+// ─── Uploaded images — served locally from disk ────────────────────────────────
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
   setHeaders: (res) => res.set("Cross-Origin-Resource-Policy", "cross-origin"),
 }));
 
-// ─── CSRF Origin check — lightweight protection for cookie-authenticated mutations
-// sameSite:none (production) removes browser CSRF protection — verify Origin header
-// as a defence-in-depth measure on all state-mutating authenticated routes
+// ─── CSRF Origin check ─────────────────────────────────────────────────────────
 const CSRF_SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 const CSRF_PUBLIC_PATHS = [
   "/api/contact",
@@ -75,6 +69,7 @@ const CSRF_PUBLIC_PATHS = [
   "/api/auth/forgot-password",
   "/api/auth/reset-password",
   "/api/health",
+  "/api/telegram/webhook", // Telegram servers POST with no Origin header
 ];
 
 app.use((req, res, next) => {
@@ -90,15 +85,13 @@ app.use((req, res, next) => {
         return res.status(403).json({ success: false, message: "Forbidden — invalid origin" });
       }
     } catch {
-      // Malformed origin header — block the request
       return res.status(403).json({ success: false, message: "Forbidden — invalid origin" });
     }
   }
-  // No origin header (Postman, curl, server-to-server) — allow through in dev
   next();
 });
 
-// ─── Auth rate limiting — applied to sensitive auth endpoints only ─────────────
+// ─── Auth rate limiting ────────────────────────────────────────────────────────
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/forgot-password", authLimiter);
 
@@ -108,21 +101,22 @@ app.get("/api/health", (req, res) => {
 });
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
-app.use("/api/auth", authRoutes);
-app.use("/api/content", contentRoutes);
+app.use("/api/auth",     authRoutes);
+app.use("/api/content",  contentRoutes);
 app.use("/api/settings", settingsRoutes);
-app.use("/api/upload", uploadRoutes);
-app.use("/api/contact", contactRoutes);
+app.use("/api/upload",   uploadRoutes);
+app.use("/api/contact",  contactRoutes);
 app.use("/api/telegram", telegramRoutes);
+
 // ─── 404 handler ──────────────────────────────────────────────────────────────
 app.use((req, res) => {
   res.status(404).json({ success: false, message: `Route ${req.method} ${req.originalUrl} not found` });
 });
 
-// ─── Global error handler (must be last) ──────────────────────────────────────
+// ─── Global error handler ──────────────────────────────────────────────────────
 app.use(errorMiddleware);
 
-// ─── Start — await DB before accepting connections (prevents startup race) ─────
+// ─── Start ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 
 (async () => {

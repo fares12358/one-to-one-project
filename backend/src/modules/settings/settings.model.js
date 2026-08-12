@@ -18,23 +18,29 @@ const SettingsSchema = new mongoose.Schema(
     },
     logoUrl:           { type: String, default: "" },
     logoWhiteUrl:      { type: String, default: "" },
-    // publicIds needed to delete the old file when a logo is replaced — stored alongside URLs
     logoPublicId:      { type: String, default: "" },
     logoWhitePublicId: { type: String, default: "" },
 
-    // Outbound email delivery config — dashboard-editable alternative to the
-    // EMAIL_* env vars. NEVER returned by the public GET /api/settings route
-    // (settings.controller.js's `get` explicitly excludes this field) —
-    // only reachable via the protected GET/PUT /api/settings/email pair.
+    // Meta Pixel ID — returned by the public GET /api/settings route so the
+    // frontend can initialise the pixel without an authenticated request.
+    metaPixelId: { type: String, default: "" },
+
+    // Outbound email delivery config — protected, never returned publicly.
     emailConfig: {
       provider:      { type: String, enum: ["smtp", "app_password"], default: "app_password" },
       host:          { type: String,  default: "" },
       port:          { type: Number,  default: 587 },
       secure:        { type: Boolean, default: false },
       user:          { type: String,  default: "" },
-      passEncrypted: { type: String,  default: "" }, // AES-256-GCM — see utils/crypto.js
+      passEncrypted: { type: String,  default: "" },
       from:          { type: String,  default: "" },
       to:            { type: String,  default: "" },
+    },
+
+    // Telegram notification config — protected, never returned publicly.
+    telegramConfig: {
+      botTokenEncrypted: { type: String, default: "" },
+      chatId:            { type: String, default: "" },
     },
   },
   { timestamps: true }

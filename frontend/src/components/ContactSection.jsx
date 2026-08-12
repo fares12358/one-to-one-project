@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import { useTranslation } from "@/context/LangContext";
 import { submitContact } from "@/services/contact.service";
+import { trackEvent } from "@/components/MetaPixel";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -67,11 +68,16 @@ export default function ContactSection() {
     setIsSending(true);
     try {
       await submitContact(formData);
+
+      // ── Meta Pixel: fire Lead event after confirmed backend success ──────────
+      trackEvent("Lead", {
+        content_name: "Contact Form",
+        content_category: "Inquiry",
+      });
+
       setSubmitted(true);
       setFormData(EMPTY_FORM);
     } catch (err) {
-      // Show the backend's specific message (rate limit, validation, etc.)
-      // Fallback to generic only for network errors
       const backendMsg = err?.response?.data?.message;
       const isNetwork  = err?.code === "ERR_NETWORK";
       setError(
