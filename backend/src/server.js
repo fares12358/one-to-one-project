@@ -38,6 +38,7 @@ app.use(helmet());
 // ─── CORS ─────────────────────────────────────────────────────────────────────
 const allowedOrigins = [
   process.env.CLIENT_URL || "http://localhost:3000",
+  "https://www.oneto-one.com",
   process.env.DASHBOARD_URL || "http://localhost:3000",
 ].filter(Boolean);
 

@@ -34,8 +34,9 @@ const LogoCard = ({ item, index }) => {
   );
 
   if (item.link) {
+    const href = /^https?:\/\//i.test(item.link) ? item.link : `https://${item.link}`;
     return (
-      <a href={item.link} target="_blank" rel="noopener noreferrer" aria-label={item.name}>
+      <a href={href} target="_blank" rel="noopener noreferrer" aria-label={item.name}>
         {content}
       </a>
     );
