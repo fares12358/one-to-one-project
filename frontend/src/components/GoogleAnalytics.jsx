@@ -2,11 +2,11 @@
 
 import Script from "next/script";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
 const GA_ID = "G-6X3LNF0PVC";
 
-export default function GoogleAnalytics() {
+function GoogleAnalyticsPageViews() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -22,6 +22,10 @@ export default function GoogleAnalytics() {
     });
   }, [pathname, searchParams]);
 
+  return null;
+}
+
+export default function GoogleAnalytics() {
   return (
     <>
       <Script
@@ -46,6 +50,10 @@ export default function GoogleAnalytics() {
           });
         `}
       </Script>
+
+      <Suspense fallback={null}>
+        <GoogleAnalyticsPageViews />
+      </Suspense>
     </>
   );
 }
