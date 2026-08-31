@@ -39,17 +39,26 @@ export default function Header() {
 
   const scrollToSection = (sectionId) => {
     setIsMobileMenuOpen(false);
-    if (!sectionId) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    const element = document.getElementById(sectionId);
-    if (element) {
-      const headerOffset = 80;
-      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-      const offsetPosition = elementPosition - headerOffset;
-      window.scrollTo({ top: offsetPosition, behavior: "smooth" });
-    }
+
+    const performScroll = () => {
+      if (!sectionId) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+        const offsetPosition = elementPosition - headerOffset;
+        window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+      }
+    };
+
+    // Closing the mobile menu removes DOM nodes (and the just-tapped, focused
+    // button) in the same tick. On mobile browsers that race with reading
+    // layout / calling scrollTo here, so the scroll silently no-ops or snaps
+    // back. Deferring past the next paint lets the close finish committing first.
+    requestAnimationFrame(() => requestAnimationFrame(performScroll));
   };
 
   const toggleLang = () => {
