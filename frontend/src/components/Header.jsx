@@ -110,7 +110,9 @@ export default function Header() {
               >
                 <button
                   onClick={() => scrollToSection(item.sectionId)}
-                  className={`relative transition-colors hover:text-[var(--brand-primary)] cursor-pointer bg-transparent border-none text-sm ${
+                  className={`relative transition-colors cursor-pointer bg-transparent border-none text-sm ${
+                    isLight ? "hover:text-[var(--brand-primary)]" : "hover:text-white hover:font-bold"
+                  } ${
                     pathname === item.path && !item.sectionId
                       ? isLight
                         ? "text-[var(--brand-primary)] font-medium"
