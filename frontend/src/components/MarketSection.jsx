@@ -82,7 +82,7 @@ const MarketSection = () => {
   const displayed = items.slice(0, VISIBLE);
 
   return (
-    <section id="market" className="py-22 px-12 bg-white">
+    <section id="market" className="py-22 px-5 sm:px-8 lg:px-12 bg-white">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

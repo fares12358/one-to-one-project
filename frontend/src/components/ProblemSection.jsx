@@ -11,7 +11,7 @@ const ProblemSection = () => {
   const rows = Math.ceil(items.length / 2);
 
   return (
-    <section className="py-22 px-12 bg-white">
+    <section className="py-22 px-5 sm:px-8 lg:px-12 bg-white">
       <div className="max-w-[1120px] mx-auto">
         <div className="inline-flex items-center gap-2.5 text-[10px] tracking-[0.16em] uppercase text-[var(--brand-primary)] mb-3.5">
           <span className="block w-6 h-px bg-[#c9a84c]" />
@@ -22,7 +22,7 @@ const ProblemSection = () => {
           {p.heading}
         </h2>
 
-        <div className="bg-[#f5f2eb] rounded-2xl border border-[rgba(var(--brand-accent-rgb),0.18)] p-10 lg:p-14">
+        <div className="bg-[#f5f2eb] rounded-2xl border border-[rgba(var(--brand-accent-rgb),0.18)] p-6 sm:p-10 lg:p-14">
           <div className="grid grid-cols-1 md:grid-cols-2">
             {items.map((item, i) => {
               const row = Math.floor(i / 2);

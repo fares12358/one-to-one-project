@@ -11,7 +11,7 @@ const AboutSection = () => {
   const imgSrc = a?._images?.[0]?.url;
 
   return (
-    <section id="about" className="py-22 px-12 bg-[#f5f2eb]">
+    <section id="about" className="py-22 px-5 sm:px-8 lg:px-12 bg-[#f5f2eb]">
       <div className="max-w-[1120px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-18 items-center">
           <motion.div
@@ -43,7 +43,7 @@ const AboutSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="relative h-[460px] hidden lg:block"
+            className="relative h-[340px] lg:h-[460px]"
           >
             <motion.div
               whileHover={{ scale: 1.02 }}

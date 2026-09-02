@@ -9,7 +9,7 @@ const PhilosophySection = () => {
   const items = t.philosophy?.items || [];
 
   return (
-    <section className="py-22 px-12 bg-[#f5f2eb]">
+    <section className="py-22 px-5 sm:px-8 lg:px-12 bg-[#f5f2eb]">
       <div className="max-w-[1120px] mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
         {items.map((item, i) => {
           const accent = i % 2 === 0
@@ -23,7 +23,7 @@ const PhilosophySection = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.15, duration: 0.6 }}
               whileHover={{ y: -4 }}
-              className="relative overflow-hidden bg-white rounded-2xl border border-[rgba(var(--brand-accent-rgb),0.18)] p-8 shadow-[0_4px_24px_rgba(var(--brand-primary-rgb),0.06)] hover:shadow-[0_12px_36px_rgba(var(--brand-primary-rgb),0.12)] hover:border-[var(--brand-accent)]/40 transition-all duration-300"
+              className="relative overflow-hidden bg-white rounded-2xl border border-[rgba(var(--brand-accent-rgb),0.18)] p-6 sm:p-8 shadow-[0_4px_24px_rgba(var(--brand-primary-rgb),0.06)] hover:shadow-[0_12px_36px_rgba(var(--brand-primary-rgb),0.12)] hover:border-[var(--brand-accent)]/40 transition-all duration-300"
             >
               <div className={`absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r ${accent}`} />
 

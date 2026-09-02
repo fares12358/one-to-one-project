@@ -55,7 +55,7 @@ export default function LogoMarquee({ id, eyebrow, heading, lead, items = [], im
   const track = [...logos, ...logos];
 
   return (
-    <section id={id} className={`py-22 px-12 ${bgClassName} overflow-hidden`}>
+    <section id={id} className={`py-22 px-5 sm:px-8 lg:px-12 ${bgClassName} overflow-hidden`}>
       <div className="max-w-7xl mx-auto">
         <div className="inline-flex items-center gap-2.5 text-[10px] tracking-[0.16em] uppercase text-[var(--brand-primary)] mb-3.5">
           <span className="block w-6 h-px bg-[#c9a84c]" />
