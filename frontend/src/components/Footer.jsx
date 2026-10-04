@@ -11,16 +11,31 @@ import { useTranslation } from "@/context/LangContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 const CONTACT_ICONS = {
-  email: { icon: FaEnvelope, href: "mailto:info@valley-seeds.com" },
-  phone: { icon: FaPhone, href: "tel:+201287636986" },
-  location: { icon: FaMapMarkerAlt, href: null },
+  email: { icon: FaEnvelope },
+  phone: { icon: FaPhone },
+  location: { icon: FaMapMarkerAlt },
 };
 
-const socialLinks = [
-  { icon: FaFacebookF, href: "#", label: "Facebook" },
-  { icon: FaLinkedinIn, href: "#", label: "LinkedIn" },
-  { icon: FaInstagram, href: "#", label: "Instagram" },
-  { icon: FaWhatsapp, href: "https://wa.me/201287636986", label: "WhatsApp" },
+// Link target comes from Settings (email/phone), falling back to the footer
+// item's own displayed value; location is never a link.
+function contactHref(key, settings, value) {
+  const clean = (v) => (v || "").trim();
+  if (key === "email") {
+    const email = clean(settings.email) || clean(value);
+    return email ? `mailto:${email}` : null;
+  }
+  if (key === "phone") {
+    const phone = (clean(settings.phone) || clean(value)).replace(/[^\d+]/g, "");
+    return phone ? `tel:${phone}` : null;
+  }
+  return null;
+}
+
+const SOCIAL_CONFIG = [
+  { key: "facebook", icon: FaFacebookF, label: "Facebook" },
+  { key: "linkedin", icon: FaLinkedinIn, label: "LinkedIn" },
+  { key: "instagram", icon: FaInstagram, label: "Instagram" },
+  { key: "whatsapp", icon: FaWhatsapp, label: "WhatsApp" },
 ];
 
 export default function Footer() {
@@ -29,6 +44,9 @@ export default function Footer() {
   const fo = t.footer;
   const currentYear = new Date().getFullYear();
   const logoSrc = settings.logoWhiteUrl || "/images/logo-white.png";
+  const socialLinks = SOCIAL_CONFIG
+    .map((s) => ({ ...s, href: (settings.socialLinks?.[s.key] || "").trim() }))
+    .filter((s) => s.href);
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -150,6 +168,7 @@ export default function Footer() {
               {fo.contact_items.map((item) => {
                 const config = CONTACT_ICONS[item.key];
                 const Icon = config.icon;
+                const href = contactHref(item.key, settings, item.value);
                 const content = (
                   <>
                     <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--brand-accent)]/15 transition-colors">
@@ -163,8 +182,8 @@ export default function Footer() {
                 );
                 return (
                   <li key={item.key}>
-                    {config.href ? (
-                      <a href={config.href} className="flex items-start gap-3 group">{content}</a>
+                    {href ? (
+                      <a href={href} className="flex items-start gap-3 group">{content}</a>
                     ) : (
                       <div className="flex items-start gap-3 group">{content}</div>
                     )}
