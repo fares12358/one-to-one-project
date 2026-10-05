@@ -8,28 +8,13 @@ import {
 } from "react-icons/fa";
 import Image from "next/image";
 import { useTranslation } from "@/context/LangContext";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useSiteSettings, resolveContactInfo } from "@/hooks/useSiteSettings";
 
 const CONTACT_ICONS = {
   email: { icon: FaEnvelope },
   phone: { icon: FaPhone },
   location: { icon: FaMapMarkerAlt },
 };
-
-// Link target comes from Settings (email/phone), falling back to the footer
-// item's own displayed value; location is never a link.
-function contactHref(key, settings, value) {
-  const clean = (v) => (v || "").trim();
-  if (key === "email") {
-    const email = clean(settings.email) || clean(value);
-    return email ? `mailto:${email}` : null;
-  }
-  if (key === "phone") {
-    const phone = (clean(settings.phone) || clean(value)).replace(/[^\d+]/g, "");
-    return phone ? `tel:${phone}` : null;
-  }
-  return null;
-}
 
 const SOCIAL_CONFIG = [
   { key: "facebook", icon: FaFacebookF, label: "Facebook" },
@@ -168,7 +153,7 @@ export default function Footer() {
               {fo.contact_items.map((item) => {
                 const config = CONTACT_ICONS[item.key];
                 const Icon = config.icon;
-                const href = contactHref(item.key, settings, item.value);
+                const { value, link: href } = resolveContactInfo(item, settings);
                 const content = (
                   <>
                     <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-[var(--brand-accent)]/15 transition-colors">
@@ -176,7 +161,7 @@ export default function Footer() {
                     </div>
                     <div>
                       <div className="text-[10px] text-white/40 uppercase tracking-wider mb-0.5">{item.label}</div>
-                      <div className="text-sm text-white/70 group-hover:text-[var(--brand-accent)] transition-colors">{item.value}</div>
+                      <div className="text-sm text-white/70 group-hover:text-[var(--brand-accent)] transition-colors">{value}</div>
                     </div>
                   </>
                 );

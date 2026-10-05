@@ -8,6 +8,7 @@ import {
   FaWhatsapp, FaArrowRight,
 } from "react-icons/fa";
 import { useTranslation } from "@/context/LangContext";
+import { useSiteSettings, resolveContactInfo } from "@/hooks/useSiteSettings";
 import { submitContact } from "@/services/contact.service";
 import { trackEvent } from "@/components/MetaPixel";
 
@@ -42,6 +43,7 @@ export default function ContactSection() {
   const ref      = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-80px" });
   const { t, isRTL } = useTranslation();
+  const settings = useSiteSettings();
   const c = t.contact;
   const f = c.form;
 
@@ -259,12 +261,13 @@ export default function ContactSection() {
             <motion.div variants={containerVariants} initial="hidden" animate={isInView ? "visible" : "hidden"} className="space-y-4">
               {(c.info || []).map((info) => {
                 const Icon = INFO_ICONS[info.key] || FaEnvelope;
+                const { value, link } = resolveContactInfo(info, settings);
                 return (
                   <motion.a
                     key={info.key}
-                    href={info.link}
-                    target={info.link?.startsWith("http") ? "_blank" : undefined}
-                    rel={info.link?.startsWith("http") ? "noopener noreferrer" : undefined}
+                    href={link || undefined}
+                    target={link?.startsWith("http") ? "_blank" : undefined}
+                    rel={link?.startsWith("http") ? "noopener noreferrer" : undefined}
                     variants={itemVariants}
                     whileHover={{ x: isRTL ? -4 : 4 }}
                     className={`flex items-center gap-5 p-5 bg-white rounded-2xl shadow-[0_2px_16px_rgba(var(--brand-primary-rgb),0.04)] border border-gray-100 hover:border-[var(--brand-accent)]/30 hover:shadow-[0_8px_30px_rgba(var(--brand-primary-rgb),0.08)] transition-all duration-300 group ${INFO_HOVER[info.key] || ""}`}
@@ -274,7 +277,7 @@ export default function ContactSection() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-xs tracking-wider uppercase text-gray-400 font-medium mb-0.5">{info.label}</div>
-                      <div className="text-gray-700 font-medium text-sm truncate group-hover:text-[var(--brand-primary)] transition-colors">{info.value}</div>
+                      <div className="text-gray-700 font-medium text-sm truncate group-hover:text-[var(--brand-primary)] transition-colors">{value}</div>
                     </div>
                     <FaArrowRight className={`w-4 h-4 text-gray-300 group-hover:text-[var(--brand-primary)] transition-all duration-300 flex-shrink-0 ${isRTL ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"}`} />
                   </motion.a>
