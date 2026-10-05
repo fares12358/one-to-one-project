@@ -4,7 +4,7 @@ import Script from "next/script";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
-const GA_ID = "G-6X3LNF0PVC";
+const GA_ID = "G-GX3LNF0PVC";
 
 // Idempotent gtag bootstrap. Called from both the effect below and the inline
 // <Script>, so whichever runs first sets things up and the 'js'/'config'
